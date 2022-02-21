@@ -52,16 +52,15 @@ export default function Home() {
                 <Button
                     color='#007AFF'
                     onPress={handleSubmit}
-                    title="Join Room"
+                    title="Join Canvas"
                 />
             </View>
             <View style={styles.buttonContainer}>
                 <Button
                     color='#007AFF'
                     onPress={handleCreateSubmit}
-                    title="Create Room"
+                    title="Create Canvas"
                 />
-                <Text style={styles.textStyle}>Don't have a Room ID? Create One :)</Text>
             </View>
         </View>
     )
