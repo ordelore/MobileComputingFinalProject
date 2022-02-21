@@ -3,8 +3,6 @@ import { Text, View, Button, TextInput, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
-const BLUE = "#ffc0cb";
-const BLACK = "#000000";
 const LENGTH = 6; // Length of the Room ID
 
 export default function Home() {
@@ -69,7 +67,7 @@ export default function Home() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8F8FF',
+        backgroundColor: '#fafafa',
     },
     textInput: {
         height: 55,
