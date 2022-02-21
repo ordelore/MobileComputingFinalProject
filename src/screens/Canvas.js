@@ -1,32 +1,32 @@
-import React, { useState, useEffect, createRef, Component } from "react";
+import React, { useState, useRef, useEffect, createRef, Component } from "react";
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Pressable, Dimensions } from 'react-native';
 import Canvas from 'react-native-canvas';
-import React, {useState, useRef, useEffect, useCallback} from 'react';
 import io from "socket.io-client";
 
-const Canvas = ({ route }) => {
+const Cvs = ({ route }) => {
   const socketRef = useRef();
   const otherUser = useRef();
   const sendChannel = useRef(); // Data channel
   const { roomID } = route.params;
   const userID = useRef()
-let connected= false
 
   useEffect(() => {
     // Step 1: Connect with the Signal server [set your ip address]
-    socketRef.current = io.connect("http://127.0.0.1:9000/)"); // Address of the Signal server
+    socketRef.current = io.connect("http://10.0.0.53:9000"); // Address of the Signal server
 
     // Step 2: Join the room. If initiator we will create a new room otherwise we will join a room
     socketRef.current.emit("join room", roomID); // Room ID
 
     // Step 3: Waiting for the other peer to join the room
     socketRef.current.on("other user", userID => {
+      console.log('other user joined')
       otherUser.current = userID;
     });
 
     // get your user id 
     socketRef.current.on("userID", userID => {
+      console.log('set user id')
       userID.current = userID;
     })
 
@@ -51,9 +51,8 @@ let connected= false
 
   function sendMessage(msg){
     // send message to other users
-    if (connected){
-      socketRef.current.emit("sending message", msg);
-    }
+    console.log(userID.current, 'is sending message...')
+    socketRef.current.emit("sending message", msg);
   }
 
   function handleCanvas(canvas) {
@@ -63,14 +62,16 @@ let connected= false
   };
 
 
-  function onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
+  function onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
+  sendMessage('clicking');};
   function onPressOut(evt) {console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
   
     return (
       <View style={styles.container}>
-        <Pressable onPressIn={this.onPressIn} onPressOut={this.onPressOut} >
+        <Pressable onPressIn={onPressIn} onPressOut={onPressOut} >
         <StatusBar style="auto" />
-        <Canvas ref={this.handleCanvas}/>
+        <Canvas ref={handleCanvas}/>
+        <Text>Hello</Text>
         </Pressable>
       </View>
     );
@@ -85,4 +86,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Canvas;
+export default Cvs;

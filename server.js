@@ -1,4 +1,4 @@
-const express =  require('express');
+const express = require('express');
 const http = require('http');
 const app = express();
 const server = http.createServer(app);
@@ -13,7 +13,7 @@ io.on('connection', socket => {
         otherwise if peer is receiver he will join the room
     */
     socket.on('join room', roomID => {
-
+      console.log('a user joined!')
         if(rooms[roomID]){
             // Receiving peer joins the room
             rooms[roomID].push(socket.id)
@@ -36,12 +36,16 @@ io.on('connection', socket => {
             socket.to(otherUser).emit("user joined", socket.id);
         }
 
-        socket.on('sending message', msg => {
-          // handle message
-          console.log('Server reseived message:', msg, 'from', userID)
-          socket.to(otherUser).emit("receiving message", msg)
-        })
+        socket.on("sending message", msg=>{console.log('test')})
+
     });
   });
+  
+  // message handling
+  io.on("sending message", msg => {
+    // handle sent  message
+    console.log('Server reseived message:', msg, 'from', userID)
+    socket.to(otherUser).emit("receiving message", msg)
+  })
 
 server.listen(9000, () => console.log("Server is up and running on Port 9000"));
