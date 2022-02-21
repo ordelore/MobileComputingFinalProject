@@ -25,9 +25,9 @@ const Cvs = ({ route }) => {
     });
 
     // get your user id 
-    socketRef.current.on("userID", userID => {
-      console.log('set user id')
-      userID.current = userID;
+    socketRef.current.on("userID", user => {
+      console.log('set user id', user)
+      userID.current = user;
     })
 
     // Signals that both peers have joined the room
@@ -62,8 +62,7 @@ const Cvs = ({ route }) => {
   };
 
 
-  function onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
-  sendMessage('clicking');};
+  function onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
   function onPressOut(evt) {console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
   
     return (

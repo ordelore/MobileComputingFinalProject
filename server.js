@@ -27,9 +27,6 @@ io.on('connection', socket => {
             we will get the other user details.
             For initiating peer it would be receiving peer and vice versa.
         */
-
-        socket.to(socket.id).emit("userID", socket.id)
-
         const otherUser = rooms[roomID].find(id => id !== socket.id);
         if(otherUser){
             socket.emit("other user", otherUser);
@@ -37,6 +34,9 @@ io.on('connection', socket => {
         }
 
         socket.on("sending message", msg=>{console.log('test')})
+
+        const currentUser = rooms[roomID].find(id => id == socket.id);
+        io.to(currentUser).emit("userID", socket.id)
 
     });
   });
