@@ -10,6 +10,7 @@ const Cvs = ({ route }) => {
   const sendChannel = useRef(); // Data channel
   const { roomID } = route.params;
   const userID = useRef()
+  const canvas = useRef(null);
 
   useEffect(() => {
     // Step 1: Connect with the Signal server [set your ip address]
@@ -55,23 +56,26 @@ const Cvs = ({ route }) => {
     socketRef.current.emit("sending message", msg);
   }
 
-  function handleCanvas(canvas) {
-    const ctx = canvas.getContext('2d');
+  function handleCanvas() {
+    const ctx = canvas.current.getContext('2d');
     ctx.fillStyle = 'purple';
     ctx.fillRect(0, 0, 100, 100);
   };
 
 
-  function onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
+  function onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
+      handleCanvas()};
   function onPressOut(evt) {console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
   
     return (
       <View style={styles.container}>
+        <Text>Canvas ID {roomID}</Text>
         <Pressable onPressIn={onPressIn} onPressOut={onPressOut} >
         <StatusBar style="auto" />
-        <Canvas ref={handleCanvas}/>
+        <Canvas ref = {canvas}/>
         </Pressable>
       </View>
+
     );
   }
 
