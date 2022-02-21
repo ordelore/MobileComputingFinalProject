@@ -70,7 +70,6 @@ const Cvs = ({ route }) => {
         <Pressable onPressIn={onPressIn} onPressOut={onPressOut} >
         <StatusBar style="auto" />
         <Canvas ref={handleCanvas}/>
-        <Text>Hello</Text>
         </Pressable>
       </View>
     );
