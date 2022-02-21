@@ -32,7 +32,7 @@ export default function Home() {
     const handleCreateSubmit = () => {
     	// Make a new room ID
     	const room = generateID();
-    	console.log(room); // Share this room id to another peer in order to join in the same room
+    	console.log(room); // Share this room id to another user in order to join in the same room
     	setRoomId(room);
         navigation.navigate('Canvas', { roomID: room });
     }
@@ -40,9 +40,9 @@ export default function Home() {
     return (
         <View style={styles.container}>
             <View style={styles.inputContainer}>
-                <Text style={{ alignSelf: 'center', fontSize: 24, margin: 8, fontWeight: 'bold' }}>P2P WEBRTC</Text>
+                <Text style={{ alignSelf: 'center', fontSize: 24, margin: 8, fontWeight: 'bold' }}>[App name here]</Text>
                 <TextInput
-                    placeholder="Room ID"
+                    placeholder="Canvas ID"
                     selectionColor="#DDD"
                     onChangeText={(text) => setRoomId(text)}
                     style={styles.textInput}
@@ -50,14 +50,14 @@ export default function Home() {
             </View>
             <View style={styles.buttonContainer}>
                 <Button
-                    color='#007AFF'
+                    color='#ffc0cb'
                     onPress={handleSubmit}
                     title="Join Canvas"
                 />
             </View>
             <View style={styles.buttonContainer}>
                 <Button
-                    color='#007AFF'
+                    color='#ffc0cb'
                     onPress={handleCreateSubmit}
                     title="Create Canvas"
                 />
