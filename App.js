@@ -1,33 +1,28 @@
-import React, { useState, useEffect, createRef, Component } from "react";
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, Dimensions } from 'react-native';
-import Canvas from 'react-native-canvas';
+//import 'react-native-gesture-handler';
 
-export default class App extends Component {
-  handleCanvas(canvas) {
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = 'purple';
-    ctx.fillRect(0, 0, 100, 100);
-  };
-  onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
-  onPressOut(evt) {console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
-  render() {
-    return (
-      <View style={styles.container}>
-        <Pressable onPressIn={this.onPressIn} onPressOut={this.onPressOut} >
-        <StatusBar style="auto" />
-        <Canvas ref={this.handleCanvas}/>
-        </Pressable>
-      </View>
+import React from 'react';
+import {View, Text} from 'react-native'
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+// Importing our screens
+import Home from './src/screens/Home';
+import Canvas from './src/screens/Canvas';
+
+const Stack = createStackNavigator();
+
+export default function App(){
+    return(
+      <NavigationContainer>
+        <Stack.Navigator>
+            <Stack.Screen name="Home" component={Home}/>
+            <Stack.Screen name="Chat" component={Canvas}/>
+        </Stack.Navigator>
+    </NavigationContainer>
     );
-  }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+/*
+  We are wrapping Home screen and Chat screen in a single stack, 
+  so that we can navigate from Home to Chat screen.
+*/
