@@ -22,36 +22,26 @@ io.on('connection', socket => {
             // Initiating peer create a new room
             rooms[roomID] = [socket.id];
         }
-
         /*
             If both initiating and receiving peer joins the room,
             we will get the other user details.
             For initiating peer it would be receiving peer and vice versa.
         */
+
+        socket.to(socket.id).emit("userID", socket.id)
+
         const otherUser = rooms[roomID].find(id => id !== socket.id);
         if(otherUser){
             socket.emit("other user", otherUser);
             socket.to(otherUser).emit("user joined", socket.id);
         }
+
+        socket.on('sending message', msg => {
+          // handle message
+          console.log('Server reseived message:', msg, 'from', userID)
+          socket.to(otherUser).emit("receiving message", msg)
+        })
     });
-
-    // /*
-    //     The initiating peer offers a connection
-    // */
-    // socket.on('offer', payload => {
-    //     io.to(payload.target).emit('offer', payload);
-    // });
-
-    // /*
-    //     The receiving peer answers (accepts) the offer
-    // */
-    // socket.on('answer', payload => {
-    //     io.to(payload.target).emit('answer', payload);
-    // });
-
-    // socket.on('ice-candidate', incoming => {
-    //     io.to(incoming.target).emit('ice-candidate', incoming.candidate);
-    // })
-});
+  });
 
 server.listen(9000, () => console.log("Server is up and running on Port 9000"));

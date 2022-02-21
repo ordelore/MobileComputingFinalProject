@@ -40,16 +40,6 @@ let connected= false
     socketRef.current.on("ice-candidate", handleNewICECandidateMsg);
   }, []);
 
-  // function callUser(userID){
-  //   // This will initiate the call for the receiving peer
-  //   console.log("[INFO] Initiated a call")
-  //   peerRef.current = Peer(userID);
-  //   connected = true
-  //   sendChannel.current = peerRef.current.createDataChannel("sendChannel");
-    
-  //   // listen to incoming messages from other peer
-  //   sendChannel.current.onmessage = handleReceiveMessage;
-  // }
 
   function Peer(userID) {
     /* 
@@ -193,7 +183,7 @@ function sendMessage(messages = []){
       />
     </View>
 )
-}
+``}
 
 const styles = StyleSheet.create({
   container: {
