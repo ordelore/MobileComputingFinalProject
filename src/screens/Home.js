@@ -25,7 +25,7 @@ export default function Home() {
     const handleSubmit = () => {
         if (roomID !== '') {
         	// Enter the room
-            navigation.navigate('Chat', { roomID: roomID });
+            navigation.navigate('Canvas', { roomID: roomID });
         }
     }
 
@@ -34,7 +34,7 @@ export default function Home() {
     	const room = generateID();
     	console.log(room); // Share this room id to another peer in order to join in the same room
     	setRoomId(room);
-        navigation.navigate('Chat', { roomID: room });
+        navigation.navigate('Canvas', { roomID: room });
     }
 
     return (

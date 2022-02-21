@@ -5,7 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 // Importing our screens
 import Home from './src/screens/Home';
-import Canvas from './src/screens/Canvas';
+import Cvs from './src/screens/Canvas';
 
 const Stack = createStackNavigator();
 
@@ -14,7 +14,7 @@ export default function App(){
       <NavigationContainer>
         <Stack.Navigator>
             <Stack.Screen name="Home" component={Home}/>
-            <Stack.Screen name="Canvas" component={Canvas}/>
+            <Stack.Screen name="Canvas" component={Cvs}/>
         </Stack.Navigator>
     </NavigationContainer>
     );
