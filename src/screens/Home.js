@@ -90,10 +90,4 @@ const styles = StyleSheet.create({
         color: '#D3D3D3',
         marginTop: 5,
     },
-    errorStyle: {
-        alignSelf: 'center',
-        color: '#ff0000',
-        marginBottom: 5,
-        fontSize: 12,
-    }
 });
