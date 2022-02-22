@@ -198,11 +198,14 @@ export default class Cvs extends Component {
   }
 }
 
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flex:1,
+    backgroundColor: '#fafafa',
     alignItems: 'center',
     justifyContent: 'center',
+    width: null,
+    margin: 0,
   },
 })

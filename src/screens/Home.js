@@ -38,7 +38,7 @@ export default function Home() {
     return (
         <View style={styles.container}>
             <View style={styles.inputContainer}>
-                <Text style={{ alignSelf: 'center', fontSize: 24, margin: 8, fontWeight: 'bold' }}>[App name here]</Text>
+                <Text style={{ alignSelf: 'center', fontSize: 24, margin: 8, fontWeight: 'bold' }}>ACooBS</Text>
                 <TextInput
                     placeholder="Canvas ID"
                     selectionColor="#DDD"
