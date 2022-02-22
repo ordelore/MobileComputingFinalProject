@@ -7,6 +7,11 @@ const io = socket(server);
 
 const rooms = {};
 
+function emitMessageTo(msg, userID, socket){
+  console.log('emit test')
+  socket.to(userID).emit("receiving message", msg)
+}
+
 io.on('connection', socket => {
     /*
         If a peer is initiator, he will create a new room
@@ -39,10 +44,8 @@ io.on('connection', socket => {
 
         socket.on("sending message", msg => {
           console.log('Server received message:', msg.text, 'from', msg.userID);
-          //send message to other user
-          if (otherUser){
-            socket.to(otherUser).emit("receiving message", msg);
-          }
+          // send message to other user
+          emitMessageTo(msg, otherUser, socket)
         })
 
     });
