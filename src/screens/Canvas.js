@@ -11,6 +11,7 @@ const Cvs = ({ route }) => {
   const { roomID } = route.params;
   const userID = useRef()
   const canvas = useRef(null);
+  let numUsers = 1
 
   useEffect(() => {
     // Step 1: Connect with the Signal server [set your ip address]
@@ -23,6 +24,7 @@ const Cvs = ({ route }) => {
     socketRef.current.on("other user", userID => {
       console.log('other user joined')
       otherUser.current = userID;
+      numUsers += 1;
     });
 
     // get your user id 
@@ -34,6 +36,7 @@ const Cvs = ({ route }) => {
     // Signals that both peers have joined the room
     socketRef.current.on("user joined", userID => {
       otherUser.current = userID;
+      numUsers += 1;
     });
 
     socketRef.current.on("receiving message", msg => {
@@ -45,15 +48,15 @@ const Cvs = ({ route }) => {
 
   function handleReceiveMessage(msg){
     // Handle the msg received 
-    console.log("[INFO] Message received from peer", e.data);
+    console.log("Message received from peer", msg.text, 'from', msg.userID);
     
     // do something w/ message
   };
 
   function sendMessage(msg){
     // send message to other users
-    console.log(userID.current, 'is sending message...')
-    socketRef.current.emit("sending message", msg);
+    console.log(userID.current, 'is sending message...');
+    socketRef.current.emit("sending message", {text: msg, userID: userID.current});
   }
 
   function handleCanvas() {
@@ -64,27 +67,32 @@ const Cvs = ({ route }) => {
 
 
   function onPressIn(evt) {console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
-      handleCanvas()};
+      handleCanvas();
+      sendMessage('hello')};
   function onPressOut(evt) {console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);};
   
     return (
       <View style={styles.container}>
-        <Text>Canvas ID {roomID}</Text>
+        <Text>You are on canvas {roomID}</Text>
+        <Text>Number of users on this canvas: {numUsers}</Text>
         <Pressable onPressIn={onPressIn} onPressOut={onPressOut} >
-        <StatusBar style="auto" />
-        <Canvas ref = {canvas}/>
+        {/* <StatusBar style="auto" /> */}
+        <Canvas ref={canvas} />
         </Pressable>
       </View>
 
     );
   }
 
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flex:1,
+    backgroundColor: '#fafafa',
     alignItems: 'center',
     justifyContent: 'center',
+    width: null,
+    margin: 0,
   },
 });
 

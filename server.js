@@ -33,19 +33,22 @@ io.on('connection', socket => {
             socket.to(otherUser).emit("user joined", socket.id);
         }
 
-        socket.on("sending message", msg=>{console.log('test')})
+        // send the socket id to current user in the room
+        const currentUser = socket.id;
+        io.to(currentUser).emit("userID", socket.id);
 
-        const currentUser = rooms[roomID].find(id => id == socket.id);
-        io.to(currentUser).emit("userID", socket.id)
+        socket.on("sending message", msg => {
+          console.log('Server received message:', msg.text, 'from', msg.userID);
+          //send message to other user
+          if (otherUser){
+            socket.to(otherUser).emit("receiving message", msg);
+          }
+        })
 
     });
   });
+
+
   
-  // message handling
-  io.on("sending message", msg => {
-    // handle sent  message
-    console.log('Server reseived message:', msg, 'from', userID)
-    socket.to(otherUser).emit("receiving message", msg)
-  })
 
 server.listen(9000, () => console.log("Server is up and running on Port 9000"));
