@@ -15,9 +15,7 @@ export default class App extends Component {
     this.onPressOut = this.onPressOut.bind(this);
     this.drawBalls = this.drawBalls.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
-    // this.componentDidUpdate = this.componentDidUpdate.bind(this);
     this.previousFrame = (new Date()).getTime();
-
   }
   componentDidMount() {
     const canvas = this.canvas.current;
