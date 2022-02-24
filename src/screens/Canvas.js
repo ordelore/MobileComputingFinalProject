@@ -12,9 +12,10 @@ export default class Cvs extends Component {
     super(props);
     this.state = {reset: false};
     this.tapIn = [0, 0, 0],
-      this.tapOut = [0, 0, 0],
-      this.canvas = React.createRef(),
-      this.balls = new Balls();
+    this.tapOut = [0, 0, 0],
+    this.canvasRef = React.createRef();
+    this.canvas
+    this.balls = new Balls();
     this.onPressIn = this.onPressIn.bind(this);
     this.onPressOut = this.onPressOut.bind(this);
     this.drawBalls = this.drawBalls.bind(this);
@@ -30,7 +31,8 @@ export default class Cvs extends Component {
   };
 
   componentDidMount() {
-    const canvas = this.canvas.current;
+    this.canvas = this.canvasRef.current
+    const canvas = this.canvas;
     canvas.width = Dimensions.get('window').width;
     canvas.height = Dimensions.get('window').height;
     this.drawBalls();
@@ -45,8 +47,7 @@ export default class Cvs extends Component {
     // Step 3: Waiting for the other peer to join the room
     this.socketRef.on("other user", userID => {
       console.log('other user joined')
-      otherUser.current = userID;
-      numUsers += 1;
+      this.numUsers += 1;
     });
 
     // get your user id 
@@ -58,7 +59,7 @@ export default class Cvs extends Component {
     // Signals that both peers have joined the room
     this.socketRef.on("user joined", userID => {
       this.otherUser = userID;
-      numUsers += 1;
+      this.numUsers += 1;
     });
 
     this.socketRef.on("receiving message", msg => {
@@ -76,19 +77,20 @@ export default class Cvs extends Component {
 
   sendMessage(msg){
     // send message to other users
-    console.log(userID.current, 'is sending message...');
-    socketRef.current.emit("sending message", {text: msg, userID: userID.current});
+    console.log(this.userID, 'is sending message...');
+    this.socketRef.emit("sending message", {text: msg, userID: this.userID});
   }
 
-  handleCanvas() {
-    const ctx = canvas.current.getContext('2d');
-    ctx.fillStyle = 'purple';
-    ctx.fillRect(0, 0, 100, 100);
+  handleCanvas(r) {
+    this.canvas.current.current = r
+    // const ctx = canvas.current.getContext('2d');
+    // ctx.fillStyle = 'purple';
+    // ctx.fillRect(0, 0, 100, 100);
   };
 
   drawBalls() {
     const { balls } = this.balls;
-    const canvas = this.canvas.current;
+    const canvas = this.canvas;
     const context = canvas.getContext("2d", {alpha: false});
     context.width = canvas.width;
     context.height = canvas.height;
@@ -117,6 +119,7 @@ export default class Cvs extends Component {
   };
 
   onPressOut(evt) {
+    this.sendMessage('hello')
     if (this.tapIn[2] !== 0) {
       console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapOut = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
@@ -133,7 +136,7 @@ export default class Cvs extends Component {
     return (
       <View style={styles.container}>
         <Pressable onPressIn={this.onPressIn} onPressOut={this.onPressOut} >
-          <Canvas ref={this.canvas} />
+          <Canvas ref={this.canvasRef} />
         </Pressable>
       </View>
     )
