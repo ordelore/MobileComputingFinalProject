@@ -8,7 +8,7 @@ const io = socket(server);
 const rooms = {};
 
 function emitMessageTo(msg, userID, socket){
-  console.log('emit test')
+  console.log('emit test to', userID)
   socket.to(userID).emit("receiving message", msg)
 }
 
@@ -44,6 +44,7 @@ io.on('connection', socket => {
 
         socket.on("sending message", msg => {
           console.log('Server received message:', msg.text, 'from', msg.userID);
+          const otherUser = rooms[roomID].find(id => id !== socket.id);
           // send message to other user
           emitMessageTo(msg, otherUser, socket)
         })
