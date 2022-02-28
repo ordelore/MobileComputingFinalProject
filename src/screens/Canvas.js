@@ -39,7 +39,7 @@ export default class Cvs extends Component {
 
     // socket init
     // Step 1: Connect with the Signal server [set your ip address]
-    this.socketRef = io.connect("http://10.0.0.53:9000"); // Address of the Signal server
+    this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server
 
     // Step 2: Join the room. If initiator we will create a new room otherwise we will join a room
     this.socketRef.emit("join room", this.roomID); // Room ID
@@ -50,7 +50,7 @@ export default class Cvs extends Component {
       this.numUsers += 1;
     });
 
-    // get your user id 
+    // get your user id
     this.socketRef.on("userID", user => {
       console.log('set user id', user)
       this.userID = user;
@@ -63,17 +63,28 @@ export default class Cvs extends Component {
     });
 
     this.socketRef.on("receiving message", msg => {
-      handleReceiveMessage(msg)
+      // handleReceiveMessage(msg)
+      console.log("Message received from peer", msg.text, 'from', msg.userID);
+    })
+
+    this.socketRef.on("remove ball", ballID => {
+      let idx;
+      this.balls.forEach((ball, i) => {
+        if (ball.color == ballID) {
+          idx = i;
+        }
+      });
+      this.balls.splice(index, 1);
     })
 
   };
 
-  handleReceiveMessage(msg){
-    // Handle the msg received 
-    console.log("Message received from peer", msg.text, 'from', msg.userID);
-    
-    // do something w/ message
-  };
+  // handleReceiveMessage(msg){
+  //   // Handle the msg received
+  //   console.log("Message received from peer", msg.text, 'from', msg.userID);
+  //
+  //   // do something w/ message
+  // };
 
   sendMessage(msg){
     // send message to other users
@@ -94,6 +105,8 @@ export default class Cvs extends Component {
     const context = canvas.getContext("2d", {alpha: false});
     context.width = canvas.width;
     context.height = canvas.height;
+    context.font = "20px Arial";
+    context.fillText(`room id: ${this.roomID}`, 50, 100);
 
     const currentFrame = (new Date()).getTime();
     balls.forEach(ball => {
@@ -103,6 +116,20 @@ export default class Cvs extends Component {
       context.closePath();
       context.fill();
       ball.step(canvas, currentFrame - this.previousFrame);
+
+      let rightTouch, bottomTouch, leftTouch, topTouch;
+      rightTouch = ball.x >= canvas.width - ball.radius;
+      leftTouch = ball.x <= ball.radius;
+      let wallTouched = "";
+      if (rightTouch) {
+        this.socketRef.emit("touch wall", {wall: "right", ballID: ball.color, userID: this.userID});
+      }
+      else if (leftTouch) {
+        this.socketRef.emit("touch wall", {wall: "left", ballID: ball.color, userID: this.userID});
+      }
+
+       // TODO: send message to server when ball touches wall
+      // TODO: make an actual ball id instead of using the color?
     });
     this.previousFrame = currentFrame;
     requestAnimationFrame(this.drawBalls);
@@ -138,6 +165,7 @@ export default class Cvs extends Component {
         <Pressable onPressIn={this.onPressIn} onPressOut={this.onPressOut} >
           <Canvas ref={this.canvasRef} />
         </Pressable>
+        <Text>Value: {this.roomID}</Text>
       </View>
     )
   }

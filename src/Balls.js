@@ -4,7 +4,7 @@ export default class Balls {
         this.balls = [];
     }
     addBall(x, y, dx, dy) {
-        this.balls.push(new Ball(x, y, 5, "red", dx, dy));
+        this.balls.push(new Ball(x, y, 5, `rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255})`, dx, dy));
     }
     updateBalls() {
         this.balls.forEach(ball => {
