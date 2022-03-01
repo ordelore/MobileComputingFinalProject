@@ -6,6 +6,9 @@ export default class Balls {
     addBall(x, y, dx, dy) {
         this.balls.push(new Ball(x, y, 5, `rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255})`, dx, dy));
     }
+    addColorBall(x, y, color, dx, dy) {
+        this.balls.push(new Ball(x, y, 5, color, dx, dy));
+    }
     updateBalls() {
         this.balls.forEach(ball => {
             ball.step();

@@ -69,20 +69,22 @@ export default class Cvs extends Component {
 
     this.socketRef.on("remove ball", ballID => {
       console.log(`ballID: ${ballID}`);
+      console.log(`this: ${this.balls}`);
       let idx;
-      this.balls.forEach((ball, i) => {
+      this.balls.getBalls().forEach((ball, i) => {
         if (ball.color == ballID) {
           idx = i;
         }
       });
-      console.log(`pre-splice num balls: ${this.balls.length}`);
-      this.balls.splice(index, 1);
-      console.log(`post-splice num balls: ${this.balls.length}`);
+      // console.log(`pre-splice num balls: ${this.balls.getBalls().length}`);
+      this.balls.getBalls().splice(idx, 1);
+      // console.log(`post-splice num balls: ${this.balls.getBalls().length}`);
     })
 
     this.socketRef.on("add ball", msg => {
       // {ballX: 0, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
-      this.balls.addBall(msg.ballX, msg.ballY, msg.ballDx, msg.ballDy);
+      let bx = (msg.ballX > 900000) ? canvas.width - 10 : msg.ballX;
+      this.balls.addColorBall(bx, msg.ballY, msg.ballColor, msg.ballDx, msg.ballDy);
     })
 
   };
@@ -129,13 +131,11 @@ export default class Cvs extends Component {
       rightTouch = ball.x >= canvas.width - ball.radius;
       leftTouch = ball.x <= ball.radius;
       if (rightTouch) {
-        this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID}); // TODO: finalize
+        this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID});
       }
       else if (leftTouch) {
-        this.socketRef.emit("touch wall", {wall: "left", ballID: ball.color, userID: this.userID});
+        this.socketRef.emit("touch wall", {wall: "left", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID});
       }
-
-       // TODO: send message to server when ball touches wall
       // TODO: make an actual ball id instead of using the color?
     });
     this.previousFrame = currentFrame;
