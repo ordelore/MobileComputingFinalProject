@@ -28,6 +28,7 @@ export default class Cvs extends Component {
     console.log(props.route.params.roomID)
     this.roomID = props.route.params.roomID;
     this.userID;
+    this.userLoc; // the user's location in server's room user array (left, middle, or right (-1, 0, 1))
   };
 
   componentDidMount() {
@@ -43,6 +44,10 @@ export default class Cvs extends Component {
 
     // Step 2: Join the room. If initiator we will create a new room otherwise we will join a room
     this.socketRef.emit("join room", this.roomID); // Room ID
+
+    this.socketRef.on("array location", loc => {
+      this.userLoc = loc;
+    })
 
     // Step 3: Waiting for the other peer to join the room
     this.socketRef.on("other user", userID => {
@@ -68,8 +73,8 @@ export default class Cvs extends Component {
     })
 
     this.socketRef.on("remove ball", ballID => {
-      console.log(`ballID: ${ballID}`);
-      console.log(`this: ${this.balls}`);
+      // console.log(`ballID: ${ballID}`);
+      // console.log(`this: ${this.balls}`);
       let idx;
       this.balls.getBalls().forEach((ball, i) => {
         if (ball.color == ballID) {
@@ -85,6 +90,7 @@ export default class Cvs extends Component {
       // {ballX: 0, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
       let bx = (msg.ballX > 900000) ? canvas.width - 10 : msg.ballX;
       this.balls.addColorBall(bx, msg.ballY, msg.ballColor, msg.ballDx, msg.ballDy);
+      console.log(`added ball to ${this.userID}`);
     })
 
   };
@@ -125,18 +131,29 @@ export default class Cvs extends Component {
       context.arc(Math.floor(ball.x), Math.floor(ball.y), ball.radius, 0, 2 * Math.PI);
       context.closePath();
       context.fill();
-      ball.step(canvas, currentFrame - this.previousFrame);
+      ball.step(canvas, currentFrame - this.previousFrame, this.userLoc);
 
       let rightTouch, leftTouch;
       rightTouch = ball.x >= canvas.width - ball.radius;
       leftTouch = ball.x <= ball.radius;
-      if (rightTouch) {
-        this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID});
+      if (rightTouch && ball.dx > 0) {
+        if (ball.toBeRemoved == 0) {
+          console.log("GOTTA GO right")
+          this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
+          if (this.userLoc <= 0) {
+            ball.toBeRemoved = 1;
+          }
+        }
       }
-      else if (leftTouch) {
-        this.socketRef.emit("touch wall", {wall: "left", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID});
+      else if (leftTouch && ball.dx < 0) {
+        if (ball.toBeRemoved == 0) {
+          console.log("GOTTA GO left")
+          this.socketRef.emit("touch wall", {wall: "left", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
+          if (this.userLoc >= 0) {
+            ball.toBeRemoved = 1;
+          }
+        }
       }
-      // TODO: make an actual ball id instead of using the color?
     });
     this.previousFrame = currentFrame;
     requestAnimationFrame(this.drawBalls);
@@ -146,7 +163,7 @@ export default class Cvs extends Component {
     if (this.tapIn[2] === 0) {
       this.tapIn = [0, 0, 0];
       this.tapOut = [0, 0, 0];
-      console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
+      // console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapIn = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
     }
     this.setState({reset: !this.state.reset});
@@ -155,10 +172,10 @@ export default class Cvs extends Component {
   onPressOut(evt) {
     this.sendMessage('hello')
     if (this.tapIn[2] !== 0) {
-      console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
+      // console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapOut = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
       var change = this.tapOut.map((x, i) => x - this.tapIn[i]);
-      console.log(`velocity: ${change[0] / change[2]}, ${change[1] / change[2]}`);
+      console.log(`velocity: ${-change[0] / change[2]}, ${change[1] / change[2]}`);
       this.balls.addBall(this.tapIn[0], this.tapIn[1], -change[0] / change[2], -change[1] / change[2]);
       this.tapIn = [0, 0, 0];
     }

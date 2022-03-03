@@ -29,22 +29,26 @@ class Ball {
         this.toRight = dx >> 0.0;
         this.toBottom = dy << 0.0;
         this.iteration = 0;
+        this.toBeRemoved = 0;
     }
-    doBounceIfNeeded(canvas) {
+    doBounceIfNeeded(canvas){//, walls) { // walls  <0 if no bounce on right wall, >0 if no bounce on left wall, =0 if no bounce on left or right wall
         let rightTouch, bottomTouch, leftTouch, topTouch;
         rightTouch = this.x >= canvas.width - this.radius;
         bottomTouch = this.y >= canvas.height - this.radius;
         leftTouch = this.x <= this.radius;
         topTouch = this.y <= this.radius;
 
-        if (rightTouch || leftTouch) {
+        if (rightTouch){// && walls > 0) {
             this.toRight = !this.toRight;
+        }
+        if (leftTouch){// && walls < 0) {
+          this.toRight = !this.toRight;
         }
         if (bottomTouch || topTouch) {
             this.toBottom = !this.toBottom;
         }
     }
-    step(canvas, deltaTime) {
+    step(canvas, deltaTime, walls) {
         const safeDistance = this.radius * 10;
         if (this.toRight && this.toBottom) {
             this.x += this.dx * deltaTime;
@@ -68,7 +72,7 @@ class Ball {
             this.iteration >= safeDistance / this.dy - this.radius ||
             this.iteration >= safeDistance / this.dx - this.radius
         ) {
-            this.doBounceIfNeeded(canvas);
+            this.doBounceIfNeeded(canvas)//, walls);
         }
     }
 }

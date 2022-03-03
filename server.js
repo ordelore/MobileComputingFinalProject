@@ -27,6 +27,16 @@ io.on('connection', socket => {
             // Initiating peer create a new room
             rooms[roomID] = [socket.id];
         }
+
+        rooms[roomID].forEach((user, i) => {
+          if (i == 0) {
+            io.to(user).emit("array location", -1);
+          } else if (i < rooms[roomID].length-1) {
+            io.to(user).emit("array location", 0);
+          } else {
+            io.to(user).emit("array location", 1);
+          }
+        });
         /*
             If both initiating and receiving peer joins the room,
             we will get the other user details.
@@ -55,10 +65,10 @@ io.on('connection', socket => {
           if ((userIdx < rooms[roomID].length - 1) && (msg.wall == "right")) { // if phone to left of another phone
             io.to(msg.userID).emit("remove ball", msg.ballColor);
             io.to(rooms[roomID][userIdx+1]).emit("add ball", {ballX: 0, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy});
-          } // TODO: when ball moves too fast, moving between screens is buggy
+          }
           if ((userIdx >> 0) && (msg.wall == "left")) { // if phone to right of another phone
             io.to(msg.userID).emit("remove ball", msg.ballColor);
-            io.to(rooms[roomID][userIdx-1]).emit("add ball", {ballX: 1000000, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
+            io.to(rooms[roomID][userIdx-1]).emit("add ball", {ballX: msg.canvWidth, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
           }
         })
 
