@@ -140,7 +140,7 @@ export default class Cvs extends Component {
         rightTouch = (ball.x/canvas.width >= 0.99);
         leftTouch = (ball.x/canvas.width <= 0.01);
         topTouch = (ball.x/canvas.height <= 0.01) && (this.numUsers > 3);
-
+        console.log(`toRight: ${ball.toRight}`)
         if (rightTouch && ball.toRight) {
           console.log("GOTTA GO right")
           this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});

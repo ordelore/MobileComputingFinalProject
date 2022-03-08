@@ -66,7 +66,7 @@ io.on('connection', socket => {
             let newRoomIdx = (userIdx == 0) ? rooms[roomID].length-1 : userIdx-1;
             console.log(`new room on left: ${newRoomIdx}`)
             io.to(msg.userID).emit("remove ball", msg.ballColor);
-            io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: msg.canvWidth, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
+            io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: 1000000, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
           }
           if (msg.wall == "top") {
             let numTop = rooms[roomID].length - 3;
