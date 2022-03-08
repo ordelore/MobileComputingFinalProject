@@ -28,7 +28,7 @@ export default class Cvs extends Component {
     console.log(props.route.params.roomID)
     this.roomID = props.route.params.roomID;
     this.userID;
-    this.userLoc; // the user's location in server's room user array (left, middle, or right (-1, 0, 1))
+    this.numUsers;
   };
 
   componentDidMount() {
@@ -41,20 +41,23 @@ export default class Cvs extends Component {
 
     // socket init
     // Step 1: Connect with the Signal server [set your ip address]
-    this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server
+    this.socketRef = io.connect("http://10.150.20.1:9000"); // Address of the Signal server (school)
+    // this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server (zoa's house)
 
     // Step 2: Join the room. If initiator we will create a new room otherwise we will join a room
     this.socketRef.emit("join room", this.roomID); // Room ID
 
-    this.socketRef.on("array location", loc => {
-      this.userLoc = loc;
-    })
-
     // Step 3: Waiting for the other peer to join the room
-    this.socketRef.on("other user", userID => {
-      console.log('other user joined')
-      this.numUsers += 1;
-    });
+    // this.socketRef.on("other user", userID => {
+    //   console.log('other user joined')
+    //   this.numUsers += 1;
+    // });
+
+
+    this.socketRef.on("new user", num => {
+      console.log(`num users: ${num}`);
+      this.numUsers = num;
+    })
 
     // get your user id
     this.socketRef.on("userID", user => {
@@ -69,39 +72,26 @@ export default class Cvs extends Component {
     });
 
     this.socketRef.on("receiving message", msg => {
-      // handleReceiveMessage(msg)
       console.log("Message received from peer", msg.text, 'from', msg.userID);
     })
 
     this.socketRef.on("remove ball", ballID => {
-      // console.log(`ballID: ${ballID}`);
-      // console.log(`this: ${this.balls}`);
       let idx;
       this.balls.getBalls().forEach((ball, i) => {
         if (ball.color == ballID) {
           idx = i;
         }
       });
-      // console.log(`pre-splice num balls: ${this.balls.getBalls().length}`);
       this.balls.getBalls().splice(idx, 1);
-      // console.log(`post-splice num balls: ${this.balls.getBalls().length}`);
     })
 
     this.socketRef.on("add ball", msg => {
-      // {ballX: 0, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
       let bx = (msg.ballX > 900000) ? canvas.width - 10 : msg.ballX;
       this.balls.addColorBall(bx, msg.ballY, msg.ballColor, msg.ballDx, msg.ballDy);
       console.log(`added ball to ${this.userID}`);
     })
 
   };
-
-  // handleReceiveMessage(msg){
-  //   // Handle the msg received
-  //   console.log("Message received from peer", msg.text, 'from', msg.userID);
-  //
-  //   // do something w/ message
-  // };
 
   sendMessage(msg){
     // send message to other users
@@ -127,31 +117,48 @@ export default class Cvs extends Component {
     context.fillText(`room id: ${this.roomID}`, 50, 100);
 
     const currentFrame = (new Date()).getTime();
+
+    // draw rectangles along top
+    if (this.numUsers > 3) {
+      let numRects = this.numUsers - 3;
+      let rectLen = Math.ceil(canvas.width / numRects)
+      for (let i=0; i<numRects; i++) {
+        context.fillStyle = (i%2 == 0) ? "black" : "gray";
+        context.fillRect(i*rectLen, 20, rectLen, 50);
+      }
+    }
+
     balls.forEach(ball => {
       context.fillStyle = ball.color;
       context.beginPath();
       context.arc(Math.floor(ball.x), Math.floor(ball.y), ball.radius, 0, 2 * Math.PI);
       context.closePath();
       context.fill();
-      ball.step(canvas, currentFrame - this.previousFrame, this.userLoc);
+      ball.step(canvas, currentFrame - this.previousFrame, this.numUsers);
+      if (ball.toBeRemoved == 0) {
+        let rightTouch, leftTouch, topTouch;
+        rightTouch = (ball.x/canvas.width >= 0.99);
+        leftTouch = (ball.x/canvas.width <= 0.01);
+        topTouch = (ball.x/canvas.height <= 0.01) && (this.numUsers > 3);
 
-      let rightTouch, leftTouch;
-      rightTouch = (ball.x/canvas.width >= 0.99);
-      leftTouch = (ball.x/canvas.width <= 0.01);
-      if (rightTouch && ball.dx < 0) {
-        if (ball.toBeRemoved == 0) {
+        if (rightTouch && ball.toRight) {
           console.log("GOTTA GO right")
           this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
           ball.toBeRemoved = 1;
+
         }
-      }
-      else if (leftTouch && ball.dx > 0) {
-        if (ball.toBeRemoved == 0) {
+        else if (leftTouch && !ball.toRight) {
           console.log("GOTTA GO left")
           this.socketRef.emit("touch wall", {wall: "left", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
           ball.toBeRemoved = 1;
+
+        } else if (topTouch && !ball.toBottom) {
+          console.log("GOTTA GO top")
+          this.socketRef.emit("touch wall", {wall: "top", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
+          ball.toBeRemoved = 1;
         }
       }
+
     });
     this.previousFrame = currentFrame;
     requestAnimationFrame(this.drawBalls);

@@ -27,26 +27,20 @@ io.on('connection', socket => {
             // Initiating peer create a new room
             rooms[roomID] = [socket.id];
         }
-
-        rooms[roomID].forEach((user, i) => {
-          if (i == 0) {
-            io.to(user).emit("array location", -1);
-          } else if (i < rooms[roomID].length-1) {
-            io.to(user).emit("array location", 0);
-          } else {
-            io.to(user).emit("array location", 1);
-          }
+        rooms[roomID].forEach(user => {
+          io.to(user).emit("new user", rooms[roomID].length);
         });
+
         /*
             If both initiating and receiving peer joins the room,
             we will get the other user details.
             For initiating peer it would be receiving peer and vice versa.
         */
-        const otherUser = rooms[roomID].find(id => id !== socket.id);
-        if(otherUser){
-            socket.emit("other user", otherUser);
-            socket.to(otherUser).emit("user joined", socket.id);
-        }
+        // const otherUser = rooms[roomID].find(id => id !== socket.id);
+        // if(otherUser){
+        //     socket.emit("other user", otherUser);
+        //     socket.to(otherUser).emit("user joined", socket.id);
+        // }
 
         // send the socket id to current user in the room
         const currentUser = socket.id;
@@ -73,6 +67,19 @@ io.on('connection', socket => {
             console.log(`new room on left: ${newRoomIdx}`)
             io.to(msg.userID).emit("remove ball", msg.ballColor);
             io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: msg.canvWidth, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
+          }
+          if (msg.wall == "top") {
+            let numTop = rooms[roomID].length - 3;
+            if (numTop <= 0) console.error("ERROR: less than 4 users")
+            let zoneLen = Math.ceil(msg.canvWidth / numTop);
+            let zoneId = Math.floor(msg.ballX / zoneLen);
+            let thisIdx = rooms[roomID].indexOf(msg.userID);
+            let newRoomIdx = thisIdx - 2 - zoneId;
+            if (newRoomIdx < 0) {
+              newRoomIdx = rooms[roomID].length + newRoomIdx;
+            }
+            io.to(msg.userID).emit("remove ball", msg.ballColor);
+            io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: msg.ballX, ballY: 0, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy}) // maybe issue with toBottom/ vertical direction
           }
         })
 
