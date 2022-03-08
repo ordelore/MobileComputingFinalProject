@@ -59,16 +59,20 @@ io.on('connection', socket => {
           emitMessageTo(msg, otherUser, socket)
         })
 
-        socket.on("touch wall", msg => { // TODO: receive message from canvas when ball bounce
+        socket.on("touch wall", msg => {
           let userIdx = rooms[roomID].indexOf(msg.userID);
           // consider phones in a line left to right where list of users determines order
-          if ((userIdx < rooms[roomID].length - 1) && (msg.wall == "right")) { // if phone to left of another phone
+          if (msg.wall == "right") {
+            let newRoomIdx = (userIdx == rooms[roomID].length-1) ? 0 : userIdx+1;
+            console.log(`new room on right: ${newRoomIdx}`)
             io.to(msg.userID).emit("remove ball", msg.ballColor);
-            io.to(rooms[roomID][userIdx+1]).emit("add ball", {ballX: 0, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy});
+            io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: 0, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy});
           }
-          if ((userIdx >> 0) && (msg.wall == "left")) { // if phone to right of another phone
+          if (msg.wall == "left") {
+            let newRoomIdx = (userIdx == 0) ? rooms[roomID].length-1 : userIdx-1;
+            console.log(`new room on left: ${newRoomIdx}`)
             io.to(msg.userID).emit("remove ball", msg.ballColor);
-            io.to(rooms[roomID][userIdx-1]).emit("add ball", {ballX: msg.canvWidth, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
+            io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: msg.canvWidth, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
           }
         })
 

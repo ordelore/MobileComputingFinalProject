@@ -38,12 +38,12 @@ class Ball {
         leftTouch = this.x <= this.radius;
         topTouch = this.y <= this.radius;
 
-        if (rightTouch){// && walls > 0) {
-            this.toRight = !this.toRight;
-        }
-        if (leftTouch){// && walls < 0) {
-          this.toRight = !this.toRight;
-        }
+        // if (rightTouch){// && walls > 0) {
+        //     this.toRight = !this.toRight;
+        // }
+        // if (leftTouch){// && walls < 0) {
+        //   this.toRight = !this.toRight;
+        // }
         if (bottomTouch || topTouch) {
             this.toBottom = !this.toBottom;
         }

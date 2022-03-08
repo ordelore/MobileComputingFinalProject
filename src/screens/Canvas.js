@@ -37,6 +37,7 @@ export default class Cvs extends Component {
     canvas.width = Dimensions.get('window').width;
     canvas.height = Dimensions.get('window').height;
     this.drawBalls();
+    console.log(`canvasWidth: ${canvas.width}`);
 
     // socket init
     // Step 1: Connect with the Signal server [set your ip address]
@@ -115,6 +116,7 @@ export default class Cvs extends Component {
     // ctx.fillRect(0, 0, 100, 100);
   };
 
+
   drawBalls() {
     const { balls } = this.balls;
     const canvas = this.canvas;
@@ -134,24 +136,20 @@ export default class Cvs extends Component {
       ball.step(canvas, currentFrame - this.previousFrame, this.userLoc);
 
       let rightTouch, leftTouch;
-      rightTouch = ball.x >= canvas.width - ball.radius;
-      leftTouch = ball.x <= ball.radius;
-      if (rightTouch && ball.dx > 0) {
+      rightTouch = (ball.x/canvas.width >= 0.99);
+      leftTouch = (ball.x/canvas.width <= 0.01);
+      if (rightTouch && ball.dx < 0) {
         if (ball.toBeRemoved == 0) {
           console.log("GOTTA GO right")
           this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
-          if (this.userLoc <= 0) {
-            ball.toBeRemoved = 1;
-          }
+          ball.toBeRemoved = 1;
         }
       }
-      else if (leftTouch && ball.dx < 0) {
+      else if (leftTouch && ball.dx > 0) {
         if (ball.toBeRemoved == 0) {
           console.log("GOTTA GO left")
           this.socketRef.emit("touch wall", {wall: "left", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
-          if (this.userLoc >= 0) {
-            ball.toBeRemoved = 1;
-          }
+          ball.toBeRemoved = 1;
         }
       }
     });
