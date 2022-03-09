@@ -26,10 +26,14 @@ class Ball {
         this.radius = r;
         this.dx = dx;
         this.dy = dy;
-        this.toRight = dx >> 0.0;
-        this.toBottom = dy << 0.0;
+        this.toRight = dx < 0.0;
+        this.toBottom = dy < 0.0;
         this.iteration = 0;
         this.toBeRemoved = 0;
+        console.log(`dx: ${this.dx}`)
+        console.log(`dy: ${this.dy}`)
+        console.log(`toRight: ${this.toRight}`)
+        console.log(`toBottom: ${this.toBottom}`)
     }
     doBounceIfNeeded(canvas, numUsers){
         let rightTouch, bottomTouch, leftTouch, topTouch;

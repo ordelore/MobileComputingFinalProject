@@ -41,8 +41,8 @@ export default class Cvs extends Component {
 
     // socket init
     // Step 1: Connect with the Signal server [set your ip address]
-    this.socketRef = io.connect("http://10.150.20.1:9000"); // Address of the Signal server (school)
-    // this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server (zoa's house)
+    // this.socketRef = io.connect("http://10.150.20.1:9000"); // Address of the Signal server (school)
+    this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server (zoa's house)
 
     // Step 2: Join the room. If initiator we will create a new room otherwise we will join a room
     this.socketRef.emit("join room", this.roomID); // Room ID
@@ -140,7 +140,8 @@ export default class Cvs extends Component {
         rightTouch = (ball.x/canvas.width >= 0.99);
         leftTouch = (ball.x/canvas.width <= 0.01);
         topTouch = (ball.x/canvas.height <= 0.01) && (this.numUsers > 3);
-        console.log(`toRight: ${ball.toRight}`)
+        // console.log(`toRight: ${ball.toRight}`)
+        // console.log(`dx: ${ball.dx}`)
         if (rightTouch && ball.toRight) {
           console.log("GOTTA GO right")
           this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
@@ -177,11 +178,11 @@ export default class Cvs extends Component {
   onPressOut(evt) {
     this.sendMessage('hello')
     if (this.tapIn[2] !== 0) {
-      // console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
+      console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapOut = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
       var change = this.tapOut.map((x, i) => x - this.tapIn[i]);
       console.log(`velocity: ${-change[0] / change[2]}, ${change[1] / change[2]}`);
-      this.balls.addBall(this.tapIn[0], this.tapIn[1], -change[0] / change[2], -change[1] / change[2]);
+      this.balls.addBall(this.tapIn[0], this.tapIn[1], change[0] / change[2], change[1] / change[2]);
       this.tapIn = [0, 0, 0];
     }
     this.setState({reset: !this.state.reset});
