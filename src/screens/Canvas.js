@@ -41,8 +41,9 @@ export default class Cvs extends Component {
 
     // socket init
     // Step 1: Connect with the Signal server [set your ip address]
-    // this.socketRef = io.connect("http://10.150.20.1:9000"); // Address of the Signal server (school)
-    this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server (zoa's house)
+    this.socketRef = io.connect("http://10.150.91.230:9000");
+    // this.socketRef = io.connect("http://10.150.20.1:9000"); // Address of the Signal server (lorenzo??)
+    // this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server (zoa's house)
 
     // Step 2: Join the room. If initiator we will create a new room otherwise we will join a room
     this.socketRef.emit("join room", this.roomID); // Room ID
@@ -100,7 +101,13 @@ export default class Cvs extends Component {
   }
 
   handleCanvas(r) {
-    this.canvas.current.current = r
+    // let canvasRef = r;
+    //this.canvas.current.current = r
+    // context = canvasRef.current.getContext("2d", {alpha: false});
+    // draw rectangles along top
+
+
+    // this.canvas.current.current = r
     // const ctx = canvas.current.getContext('2d');
     // ctx.fillStyle = 'purple';
     // ctx.fillRect(0, 0, 100, 100);
@@ -116,9 +123,6 @@ export default class Cvs extends Component {
     context.font = "20px Arial";
     context.fillText(`room id: ${this.roomID}`, 50, 100);
 
-    const currentFrame = (new Date()).getTime();
-
-    // draw rectangles along top
     if (this.numUsers > 3) {
       let numRects = this.numUsers - 3;
       let rectLen = Math.ceil(canvas.width / numRects)
@@ -127,6 +131,8 @@ export default class Cvs extends Component {
         context.fillRect(i*rectLen, 20, rectLen, 50);
       }
     }
+
+    const currentFrame = (new Date()).getTime();
 
     balls.forEach(ball => {
       context.fillStyle = ball.color;
@@ -139,17 +145,17 @@ export default class Cvs extends Component {
         let rightTouch, leftTouch, topTouch;
         rightTouch = (ball.x/canvas.width >= 0.99);
         leftTouch = (ball.x/canvas.width <= 0.01);
-        topTouch = (ball.x/canvas.height <= 0.01) && (this.numUsers > 3);
+        topTouch = (ball.y/canvas.height <= 0.01) && (this.numUsers > 3);
         // console.log(`toRight: ${ball.toRight}`)
         // console.log(`dx: ${ball.dx}`)
         if (rightTouch && ball.toRight) {
-          console.log("GOTTA GO right")
+          // console.log("GOTTA GO right")
           this.socketRef.emit("touch wall", {wall: "right", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
           ball.toBeRemoved = 1;
 
         }
         else if (leftTouch && !ball.toRight) {
-          console.log("GOTTA GO left")
+          // console.log("GOTTA GO left")
           this.socketRef.emit("touch wall", {wall: "left", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
           ball.toBeRemoved = 1;
 

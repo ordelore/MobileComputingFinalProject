@@ -54,6 +54,7 @@ io.on('connection', socket => {
         })
 
         socket.on("touch wall", msg => {
+          console.log("wall touched")
           let userIdx = rooms[roomID].indexOf(msg.userID);
           // consider phones in a line left to right where list of users determines order
           if (msg.wall == "right") {
@@ -69,6 +70,7 @@ io.on('connection', socket => {
             io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: 1000000, ballY: msg.ballY, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy})
           }
           if (msg.wall == "top") {
+            console.log("received top")
             let numTop = rooms[roomID].length - 3;
             if (numTop <= 0) console.error("ERROR: less than 4 users")
             let zoneLen = Math.ceil(msg.canvWidth / numTop);
@@ -79,7 +81,7 @@ io.on('connection', socket => {
               newRoomIdx = rooms[roomID].length + newRoomIdx;
             }
             io.to(msg.userID).emit("remove ball", msg.ballColor);
-            io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: msg.ballX, ballY: 0, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: msg.ballDy}) // maybe issue with toBottom/ vertical direction
+            io.to(rooms[roomID][newRoomIdx]).emit("add ball", {ballX: msg.ballX, ballY: 0, ballRadius: msg.ballRadius, ballColor: msg.ballColor, ballDx: msg.ballDx, ballDy: -(msg.ballDy)}) // maybe issue with toBottom/ vertical direction
           }
         })
 
