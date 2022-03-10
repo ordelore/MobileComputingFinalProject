@@ -5,6 +5,7 @@ import React, {Component, useState, useRef, useEffect} from 'react';
 import Balls from '../Balls';
 import io from "socket.io-client";
 import { render } from "react-dom";
+const MAX_VEL = 0.2;
 
 export default class Cvs extends Component {
 
@@ -186,9 +187,12 @@ export default class Cvs extends Component {
     if (this.tapIn[2] !== 0) {
       console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapOut = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
-      var change = this.tapOut.map((x, i) => x - this.tapIn[i]);
+      const change = this.tapOut.map((x, i) => x - this.tapIn[i]);
       console.log(`velocity: ${change[0] / change[2]}, ${change[1] / change[2]}`);
-      this.balls.addBall(this.tapIn[0], this.tapIn[1], change[0] / change[2], change[1] / change[2]);
+      const curVel = Math.sqrt((change[0] / change[2]) ** 2 + (change[1] / change[2]) ** 2);
+      var velX = curVel < MAX_VEL ? change[0] / change[2] : change[0] / change[2] * MAX_VEL / curVel;
+      var velY = curVel < MAX_VEL ? change[1] / change[2] : change[1] / change[2] * MAX_VEL / curVel;
+      this.balls.addBall(this.tapIn[0], this.tapIn[1], velX, velY);
       this.tapIn = [0, 0, 0];
     }
     this.setState({reset: !this.state.reset});
