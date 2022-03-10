@@ -26,7 +26,7 @@ class Ball {
         this.radius = r;
         this.dx = dx;
         this.dy = dy;
-        this.toRight = dx < 0.0;
+        this.toRight = dx > 0.0;
         this.toBottom = dy < 0.0;
         this.iteration = 0;
         this.toBeRemoved = 0;
@@ -54,24 +54,9 @@ class Ball {
     }
     step(canvas, deltaTime, numUsers) {
         const safeDistance = this.radius * 10;
-        if (this.toRight && this.toBottom) {
-            this.x += this.dx * deltaTime;
-            this.y += this.dy * deltaTime;
-            this.iteration++;
-        } else if (!this.toRight && this.toBottom) {
-            this.x -= this.dx * deltaTime;
-            this.y += this.dy * deltaTime;
-            this.iteration++;
-
-        } else if (!this.toRight && !this.toBottom) {
-            this.x -= this.dx * deltaTime;
-            this.y -= this.dy * deltaTime;
-            this.iteration++;
-        } else if (this.toRight && !this.toBottom) {
-            this.x += this.dx * deltaTime;
-            this.y -= this.dy * deltaTime;
-            this.iteration++;
-        }
+        this.x += this.dx * deltaTime;
+        this.y += this.dy * deltaTime;
+        this.iteration++;
         if (
             this.iteration >= safeDistance / this.dy - this.radius ||
             this.iteration >= safeDistance / this.dx - this.radius

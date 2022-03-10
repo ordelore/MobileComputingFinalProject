@@ -181,7 +181,7 @@ export default class Cvs extends Component {
       console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapOut = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
       var change = this.tapOut.map((x, i) => x - this.tapIn[i]);
-      console.log(`velocity: ${-change[0] / change[2]}, ${change[1] / change[2]}`);
+      console.log(`velocity: ${change[0] / change[2]}, ${change[1] / change[2]}`);
       this.balls.addBall(this.tapIn[0], this.tapIn[1], change[0] / change[2], change[1] / change[2]);
       this.tapIn = [0, 0, 0];
     }
