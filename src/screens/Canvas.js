@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, Dimensions } from 'react-native';
+import { StyleSheet, Text, Button, View, Pressable, Dimensions } from 'react-native';
 import Canvas from 'react-native-canvas';
 import React, {Component, useState, useRef, useEffect} from 'react';
 import Balls from '../Balls';
@@ -15,18 +15,18 @@ export default class Cvs extends Component {
     this.tapIn = [0, 0, 0],
     this.tapOut = [0, 0, 0],
     this.canvasRef = React.createRef();
-    this.canvas
+    this.canvas = null;
     this.balls = new Balls();
     this.onPressIn = this.onPressIn.bind(this);
     this.onPressOut = this.onPressOut.bind(this);
     this.drawBalls = this.drawBalls.bind(this);
+    this.clearCanvas = this.clearCanvas.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.previousFrame = (new Date()).getTime();
 
       // server refs
     this.socketRef;
     this.sendChannel; // Data channel
-    console.log(props.route.params.roomID)
     this.roomID = props.route.params.roomID;
     this.userID;
     this.numUsers;
@@ -42,7 +42,8 @@ export default class Cvs extends Component {
 
     // socket init
     // Step 1: Connect with the Signal server [set your ip address]
-    this.socketRef = io.connect("http://10.150.91.230:9000");
+    this.socketRef = io.connect("http://10.0.0.53:9000");
+      //"http://10.150.91.230:9000");
     // this.socketRef = io.connect("http://10.150.20.1:9000"); // Address of the Signal server (lorenzo??)
     // this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server (zoa's house)
 
@@ -57,13 +58,12 @@ export default class Cvs extends Component {
 
 
     this.socketRef.on("new user", num => {
-      console.log(`num users: ${num}`);
+      //console.log(`num users: ${num}`);
       this.numUsers = num;
     })
 
     // get your user id
     this.socketRef.on("userID", user => {
-      console.log('set user id', user)
       this.userID = user;
     })
 
@@ -74,7 +74,7 @@ export default class Cvs extends Component {
     });
 
     this.socketRef.on("receiving message", msg => {
-      console.log("Message received from peer", msg.text, 'from', msg.userID);
+      //console.log("Message received from peer", msg.text, 'from', msg.userID);
     })
 
     this.socketRef.on("remove ball", ballID => {
@@ -90,29 +90,34 @@ export default class Cvs extends Component {
     this.socketRef.on("add ball", msg => {
       let bx = (msg.ballX > 900000) ? canvas.width - 10 : msg.ballX;
       this.balls.addColorBall(bx, msg.ballY, msg.ballColor, msg.ballDx, msg.ballDy);
-      console.log(`added ball to ${this.userID}`);
     })
 
   };
 
   sendMessage(msg){
     // send message to other users
-    console.log(this.userID, 'is sending message...');
+    //console.log(this.userID, 'is sending message...');
     this.socketRef.emit("sending message", {text: msg, userID: this.userID});
-  }
-
-  handleCanvas(r) {
-    // let canvasRef = r;
-    //this.canvas.current.current = r
-    // context = canvasRef.current.getContext("2d", {alpha: false});
-    // draw rectangles along top
-
-
-    // this.canvas.current.current = r
-    // const ctx = canvas.current.getContext('2d');
-    // ctx.fillStyle = 'purple';
-    // ctx.fillRect(0, 0, 100, 100);
   };
+
+  handleCanvas = (canvas) => {
+    this.context = canvas.getContext('2d');
+    this.canvas = canvas;
+  };
+  
+  // (r) {
+  //   this.context = r.current.getContext('2d', {alpha: false});
+  //   // let canvasRef = r;
+  //   //this.canvas.current.current = r
+  //   // context = canvasRef.current.getContext("2d", {alpha: false});
+  //   // draw rectangles along top
+
+
+  //   // this.canvas.current.current = r
+  //   // const ctx = canvas.current.getContext('2d');
+  //   // ctx.fillStyle = 'purple';
+  //   // ctx.fillRect(0, 0, 100, 100);
+  // };
 
 
   drawBalls() {
@@ -122,7 +127,6 @@ export default class Cvs extends Component {
     context.width = canvas.width;
     context.height = canvas.height;
     context.font = "20px Arial";
-    context.fillText(`room id: ${this.roomID}`, 50, 100);
 
     if (this.numUsers > 3) {
       let numRects = this.numUsers - 3;
@@ -161,7 +165,7 @@ export default class Cvs extends Component {
           ball.toBeRemoved = 1;
 
         } else if (topTouch && !ball.toBottom) {
-          console.log("GOTTA GO top")
+          //console.log("GOTTA GO top")
           this.socketRef.emit("touch wall", {wall: "top", ballX: ball.x, ballY: ball.y, ballRadius: ball.radius, ballColor: ball.color, ballDx: ball.dx, ballDy: ball.dy, userID: this.userID, canvWidth: canvas.width});
           ball.toBeRemoved = 1;
         }
@@ -185,10 +189,10 @@ export default class Cvs extends Component {
   onPressOut(evt) {
     this.sendMessage('hello')
     if (this.tapIn[2] !== 0) {
-      console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
+      //console.log(`clicked out at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapOut = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
       const change = this.tapOut.map((x, i) => x - this.tapIn[i]);
-      console.log(`velocity: ${change[0] / change[2]}, ${change[1] / change[2]}`);
+      //console.log(`velocity: ${change[0] / change[2]}, ${change[1] / change[2]}`);
       const curVel = Math.sqrt((change[0] / change[2]) ** 2 + (change[1] / change[2]) ** 2);
       var velX = curVel < MAX_VEL ? change[0] / change[2] : change[0] / change[2] * MAX_VEL / curVel;
       var velY = curVel < MAX_VEL ? change[1] / change[2] : change[1] / change[2] * MAX_VEL / curVel;
@@ -199,12 +203,29 @@ export default class Cvs extends Component {
 
   };
 
+  clearCanvas(evt) {
+    // clear the canvas of lines
+    const canvas = this.canvas;
+    const context = canvas.getContext("2d", {alpha: false});
+    context.width = canvas.width;
+    context.height = canvas.height;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    this.balls = new Balls();
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <Pressable onPressIn={this.onPressIn} onPressOut={this.onPressOut} >
-          <Canvas ref={this.canvasRef} />
+          <Canvas ref={this.canvasRef}/>
         </Pressable>
+        <View  style={styles.text}>
+          <Text>Canvas {this.roomID}</Text>
+        </View>
+        <View style={styles.button}>
+          <Button onPress = {this.clearCanvas} title ='Clear Canvas' color="green"/>
+        </View>
       </View>
     )
   }
@@ -213,11 +234,20 @@ export default class Cvs extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex:1,
-    backgroundColor: '#fafafa',
     alignItems: 'center',
-    justifyContent: 'center',
-    width: null,
-    margin: 0,
+    flex:1,
   },
+  button: {
+    position: "absolute",
+    zIndex: 10000, 
+    bottom:10,
+    right: 10,
+
+  },
+  text: {
+    position: "absolute",
+    zIndex: 10000, 
+    bottom:10,
+    left: 10,
+  }
 })
