@@ -221,11 +221,12 @@ export default class Cvs extends Component {
           <Canvas ref={this.canvasRef}/>
         </Pressable>
         <View  style={styles.text}>
-          <Text>Canvas {this.roomID}</Text>
+          <Text style={{ alignSelf: 'center', fontSize: 20, margin: 8 }}>Canvas {this.roomID}</Text>
         </View>
-        <View style={styles.button}>
-          <Button onPress = {this.clearCanvas} title ='Clear Canvas' color="green"/>
-        </View>
+          <Pressable  style={styles.button} onPress={this.clearCanvas}>
+            <Text style={{color: 'white', alignSelf: 'center', fontSize: 18}} color='white'>Clear Canvas</Text>
+          </Pressable>
+          {/* <Button onPress = {this.clearCanvas} color = 'green' title ='Clear Canvas' /> */}
       </View>
     )
   }
@@ -239,15 +240,24 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    zIndex: 10000, 
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000,
     bottom:10,
+    height: 50,
+    width: 120,
+    borderColor: 'green',
+    borderWidth: 5,
+    alignSelf: 'center',
+    borderRadius: 10,
     right: 10,
-
+    backgroundColor: 'green',
   },
   text: {
     position: "absolute",
     zIndex: 10000, 
     bottom:10,
     left: 10,
+    fontSize: 450,
   }
 })

@@ -48,16 +48,16 @@ export default function Home() {
             </View>
             <View style={styles.buttonContainer}>
                 <Button
-                    color='#ffc0cb'
                     onPress={handleSubmit}
                     title="Join Canvas"
+                    color = 'green'
                 />
             </View>
             <View style={styles.buttonContainer}>
                 <Button
-                    color='#ffc0cb'
                     onPress={handleCreateSubmit}
                     title="Create Canvas"
+                    color = 'green'
                 />
             </View>
         </View>
@@ -67,14 +67,13 @@ export default function Home() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fafafa',
     },
     textInput: {
         height: 55,
         paddingLeft: 15,
         paddingRight: 15,
         fontSize: 18,
-        backgroundColor: '#fff',
+        backgroundColor: 'white',
         borderWidth: .5,
     },
     inputContainer: {
@@ -83,11 +82,17 @@ const styles = StyleSheet.create({
         margin: 10,
     },
     buttonContainer: {
-        padding: 15,
+        margin: 5,
+        width: 350,
+        borderColor: 'green',
+        borderWidth: 5,
+        elevation: 0,
+        borderRadius: 15,
+        alignSelf: 'center',
     },
     textStyle: {
         alignSelf: 'center',
-        color: '#D3D3D3',
+        color: 'white',
         marginTop: 5,
     },
 });
