@@ -17,13 +17,14 @@ export default class Cvs extends Component {
     this.canvasRef = React.createRef();
     this.canvas = null;
     this.balls = new Balls();
+    this.removedBall = null;
     this.onPressIn = this.onPressIn.bind(this);
     this.onPressOut = this.onPressOut.bind(this);
     this.drawBalls = this.drawBalls.bind(this);
     this.clearCanvas = this.clearCanvas.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.previousFrame = (new Date()).getTime();
-
+    
       // server refs
     this.socketRef;
     this.sendChannel; // Data channel
@@ -44,6 +45,7 @@ export default class Cvs extends Component {
     // Step 1: Connect with the Signal server [set your ip address]
     this.socketRef = io.connect("http://10.0.0.53:9000");
       //"http://10.150.91.230:9000");
+   // this.socketRef = io.connect("http://10.150.137.253:9000");
     // this.socketRef = io.connect("http://10.150.20.1:9000"); // Address of the Signal server (lorenzo??)
     // this.socketRef = io.connect("http://192.168.0.147:9000"); // Address of the Signal server (zoa's house)
 
@@ -182,6 +184,14 @@ export default class Cvs extends Component {
       this.tapOut = [0, 0, 0];
       // console.log(`clicked in at (${evt.nativeEvent.locationX}, ${evt.nativeEvent.locationY}) at time ${evt.nativeEvent.timestamp}`);
       this.tapIn = [evt.nativeEvent.locationX, evt.nativeEvent.locationY, evt.nativeEvent.timestamp];
+      // checks for if the tapIn is near any balls on the screen
+      this.balls.getBalls().every((ball, idx) => {
+        if (ball.isNear(this.tapIn[0], this.tapIn[1]) && !this.toBeRemoved) {
+          // this.tapIn = [ball.x, ball.y, evt.nativeEvent.timestamp];
+          this.toBeRemoved = this.balls.getBalls().splice(idx, 1)[0];
+          return false;
+        }
+      });
     }
     this.setState({reset: !this.state.reset});
   };
@@ -196,7 +206,14 @@ export default class Cvs extends Component {
       const curVel = Math.sqrt((change[0] / change[2]) ** 2 + (change[1] / change[2]) ** 2);
       var velX = curVel < MAX_VEL ? change[0] / change[2] : change[0] / change[2] * MAX_VEL / curVel;
       var velY = curVel < MAX_VEL ? change[1] / change[2] : change[1] / change[2] * MAX_VEL / curVel;
-      this.balls.addBall(this.tapIn[0], this.tapIn[1], velX, velY);
+      if (this.toBeRemoved) {
+        this.toBeRemoved.dx = velX;
+        this.toBeRemoved.dy = velY;
+        this.balls.addABall(this.toBeRemoved);
+        this.toBeRemoved = null;
+      } else {
+        this.balls.addBall(this.tapIn[0], this.tapIn[1], velX, velY);
+      }
       this.tapIn = [0, 0, 0];
     }
     this.setState({reset: !this.state.reset});

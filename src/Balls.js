@@ -1,13 +1,19 @@
 import * as React from 'react'
+// for a touch to be considered near a given ball, it must be a multiple of the ball's radius away from the ball's center
+const BALL_RADIUS = 5;
+const CLOSE_DISTANCE = 5 * BALL_RADIUS;
 export default class Balls {
     constructor() {
         this.balls = [];
     }
     addBall(x, y, dx, dy) {
-        this.balls.push(new Ball(x, y, 5, `rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255})`, dx, dy));
+        this.balls.push(new Ball(x, y, BALL_RADIUS, `rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255})`, dx, dy));
+    }
+    addABall(ball) {
+        this.balls.push(ball);
     }
     addColorBall(x, y, color, dx, dy) {
-        this.balls.push(new Ball(x, y, 5, color, dx, dy));
+        this.balls.push(new Ball(x, y, BALL_RADIUS, color, dx, dy));
     }
     updateBalls() {
         this.balls.forEach(ball => {
@@ -35,34 +41,21 @@ class Ball {
         // console.log(`toRight: ${this.toRight}`)
         // console.log(`toBottom: ${this.toBottom}`)
     }
-    doBounceIfNeeded(canvas, numUsers){
-        let rightTouch, bottomTouch, leftTouch, topTouch;
-        rightTouch = this.x >= canvas.width - this.radius;
-        bottomTouch = this.y >= canvas.height - this.radius;
-        leftTouch = this.x <= this.radius;
-        topTouch = this.y <= this.radius;
 
-        // if (rightTouch){// && walls > 0) {
-        //     this.toRight = !this.toRight;
-        // }
-        // if (leftTouch){// && walls < 0) {
-        //   this.toRight = !this.toRight;
-        // }
+    step(canvas, deltaTime, numUsers) {
+        this.x += this.dx * deltaTime;
+        this.y += this.dy * deltaTime;
+        const bottomTouch = (this.y >= canvas.height - this.radius) && (this.dy > 0.0);
+        const topTouch = (this.y <= this.radius) && (this.dy < 0.0);
+        
         if (bottomTouch || (topTouch && (numUsers <= 3))) {
             this.toBottom = !this.toBottom;
             this.dy *= -1.0;
         }
     }
-    step(canvas, deltaTime, numUsers) {
-        const safeDistance = this.radius * 10;
-        this.x += this.dx * deltaTime;
-        this.y += this.dy * deltaTime;
-        this.iteration++;
-        if (
-            this.iteration >= safeDistance / this.dy - this.radius ||
-            this.iteration >= safeDistance / this.dx - this.radius
-        ) {
-            this.doBounceIfNeeded(canvas, numUsers);
-        }
+
+    isNear(x, y) {
+        const distance = Math.sqrt((this.x - x) ** 2 + (this.y - y) ** 2);
+        return distance <= CLOSE_DISTANCE;
     }
 }
