@@ -36,10 +36,6 @@ class Ball {
         this.toBottom = dy > 0.0;
         this.iteration = 0;
         this.toBeRemoved = 0;
-        // console.log(`dx: ${this.dx}`)
-        // console.log(`dy: ${this.dy}`)
-        // console.log(`toRight: ${this.toRight}`)
-        // console.log(`toBottom: ${this.toBottom}`)
     }
 
     step(canvas, deltaTime, numUsers) {
@@ -47,7 +43,7 @@ class Ball {
         this.y += this.dy * deltaTime;
         const bottomTouch = (this.y >= canvas.height - this.radius) && (this.dy > 0.0);
         const topTouch = (this.y <= this.radius) && (this.dy < 0.0);
-        
+
         if (bottomTouch || (topTouch && (numUsers <= 3))) {
             this.toBottom = !this.toBottom;
             this.dy *= -1.0;
